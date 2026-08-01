@@ -3,6 +3,11 @@ import os
 from fastapi import FastAPI
 
 from src.config import ConfigurationError, load_config
+from src.inference import (
+    InferenceReadinessAdapter,
+    OllamaClient,
+    UrllibJsonTransport,
+)
 
 
 app = FastAPI(
@@ -36,10 +41,38 @@ def status() -> dict[str, object]:
         }
     else:
         configured = config.ollama_host is not None and config.ollama_port is not None
-        ollama = {
-            "configured": configured,
-            "ready": False,
-            "detail": "readiness_not_checked" if configured else "configuration_incomplete",
-        }
+        if configured:
+            adapter = _build_ollama_adapter(
+                config.ollama_host,
+                config.ollama_port,
+                config.local_model,
+            )
+            readiness = adapter.check_readiness()
+            ollama = {
+                "configured": True,
+                "ready": readiness.ready,
+                "detail": readiness.detail,
+            }
+        else:
+            ollama = {
+                "configured": False,
+                "ready": False,
+                "detail": "configuration_incomplete",
+            }
 
-    return {"status": "degraded", "dependencies": {"ollama": ollama}}
+    overall = "ready" if ollama["ready"] else "degraded"
+    return {"status": overall, "dependencies": {"ollama": ollama}}
+
+
+def _build_ollama_adapter(
+    host: str,
+    port: int,
+    model: str,
+) -> InferenceReadinessAdapter:
+    return OllamaClient(
+        host=host,
+        port=port,
+        model=model,
+        timeout_seconds=1.0,
+        transport=UrllibJsonTransport(),
+    )
