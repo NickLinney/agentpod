@@ -1,0 +1,8 @@
+services:
+  agentpod:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    user: "10001:10001"
+    ports:
+      - "127.0.0.1:8000:8000"
