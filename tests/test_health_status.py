@@ -114,11 +114,12 @@ class HealthAndStatusTests(unittest.TestCase):
             routes,
             {
                 "/openapi.json": ["GET", "HEAD"],
+                "/chat": ["POST"],
                 "/health": ["GET"],
                 "/status": ["GET"],
             },
         )
-        self.assertEqual(set(app.openapi()["paths"]), {"/health", "/status"})
+        self.assertEqual(set(app.openapi()["paths"]), {"/chat", "/health", "/status"})
 
 
 if __name__ == "__main__":

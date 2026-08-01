@@ -166,7 +166,7 @@ class ConfigurationContractTests(unittest.TestCase):
         self.assertIs(config.telemetry_enabled, False)
         self.assertEqual(
             [route.path for route in app.routes],
-            ["/openapi.json", "/health", "/status"],
+            ["/openapi.json", "/health", "/status", "/chat"],
         )
 
 
