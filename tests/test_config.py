@@ -164,7 +164,10 @@ class ConfigurationContractTests(unittest.TestCase):
         self.assertEqual(config.memory_backend, "not-activated")
         self.assertIs(config.auth_enabled, True)
         self.assertIs(config.telemetry_enabled, False)
-        self.assertEqual([route.path for route in app.routes], ["/openapi.json"])
+        self.assertEqual(
+            [route.path for route in app.routes],
+            ["/openapi.json", "/health", "/status"],
+        )
 
 
 if __name__ == "__main__":
