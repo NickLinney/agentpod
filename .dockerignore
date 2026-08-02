@@ -24,6 +24,8 @@ htmlcov/
 venv/
 build/
 dist/
+frontend/dist/
+node_modules/
 config/local/
 memory/
 logs/
