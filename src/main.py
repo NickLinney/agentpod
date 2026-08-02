@@ -1,10 +1,18 @@
 import os
+from contextlib import asynccontextmanager
+from collections.abc import AsyncIterator
 
 from fastapi import FastAPI, Request
 from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse
 from pydantic import BaseModel, ConfigDict, StrictStr, field_validator
 
+from src.application_logging import (
+    StructuredLoggingMiddleware,
+    log_application_shutdown,
+    log_application_startup,
+    log_current_http_error,
+)
 from src.config import ConfigurationError, load_config
 from src.inference import (
     ChatResult,
@@ -45,13 +53,24 @@ class ErrorResponse(BaseModel):
     error: ErrorDetail
 
 
+@asynccontextmanager
+async def lifespan(_app: FastAPI) -> AsyncIterator[None]:
+    log_application_startup()
+    try:
+        yield
+    finally:
+        log_application_shutdown()
+
+
 app = FastAPI(
     title="NickLinney.AgentPod",
     version="unassigned",
     docs_url=None,
     redoc_url=None,
     openapi_url="/openapi.json",
+    lifespan=lifespan,
 )
+app.add_middleware(StructuredLoggingMiddleware)
 
 
 @app.exception_handler(RequestValidationError)
@@ -170,4 +189,5 @@ def _chat_error_response(result: ChatResult) -> JSONResponse:
 
 
 def _error_response(code: str, status_code: int) -> JSONResponse:
+    log_current_http_error(status_code, code)
     return JSONResponse(status_code=status_code, content={"error": {"code": code}})
