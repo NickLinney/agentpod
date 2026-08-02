@@ -1,4 +1,5 @@
 <script setup>
+import ChatConsole from './components/ChatConsole.vue'
 import StatusDashboard from './components/StatusDashboard.vue'
 
 const projectCode = 'NLSW000004'
@@ -11,6 +12,7 @@ const projectCode = 'NLSW000004'
       <h1 class="title mt-4">NickLinney.AgentPod</h1>
       <p class="subtitle">AgentPod-RT1 local runtime status</p>
       <StatusDashboard />
+      <ChatConsole />
     </div>
   </main>
 </template>
