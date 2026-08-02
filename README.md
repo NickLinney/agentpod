@@ -6,7 +6,7 @@
 
 **Delivery target:** MVP
 
-**Repository status:** Governed bootstrap only; the runtime is not yet implemented
+**Repository status:** ARM64-validated development baseline; version and release remain unassigned
 
 NickLinney.AgentPod is the standardized runtime environment for executing one autonomous agent. AgentPod-RT1 is the first reference implementation of that runtime contract; Docker, Ollama, and FastAPI are replaceable implementation choices rather than the AgentPod specification itself.
 
@@ -18,7 +18,7 @@ The approved implementation is:
 - CPU-only
 - Docker-native and OCI-oriented
 - Debian Bookworm Slim based
-- portable across AMD64 and ARM64
+- built from a pinned multi-architecture base; runtime validation is currently ARM64-only
 - backed by local Ollama inference
 - validated through the project-approved local Docker workflow
 
@@ -28,9 +28,11 @@ Kubernetes, GPU acceleration, multi-agent execution in one container, distribute
 
 This project does not use repository CI, GitHub Actions, cloud actions, cloud runtime, or cloud testing. All testing is performed through the approved local Docker workflow.
 
-## Current State
+## Current Support Status
 
-This commit establishes only the source-repository boundary and secret-safe ignore rules. It intentionally does not contain a `Dockerfile`, Compose definition, application code, version assignment, release artifact, automation workflow, or speculative project structure. Runtime work begins only through an approved Sprint 1 task.
+The current feature-branch baseline provides a non-root local Docker application with the approved FastAPI health, status, and minimal chat surfaces, a replaceable Ollama boundary, locked Python packages, and secret-safe structured JSON application logs. It has been built and validated only through local Docker on ARM64 Apple Silicon. The pinned base image index includes both AMD64 and ARM64 manifests, but no AMD64 runtime build or test has been performed, so AMD64 runtime support is not yet validated.
+
+The Ollama boundary is covered by controlled contract tests. No live Ollama service, model acquisition, or approved-model prompt-response execution has been performed, so live model compatibility is not claimed. No alternate environment, cloud runtime, or release validation has been performed.
 
 ## Repository Governance
 
