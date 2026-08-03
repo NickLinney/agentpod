@@ -4,6 +4,9 @@ services:
       context: .
       dockerfile: Dockerfile
     user: "10001:10001"
+    environment:
+      OLLAMA_HOST: ollama
+      OLLAMA_PORT: "11434"
     ports:
       - "127.0.0.1:8000:8000"
     networks:
