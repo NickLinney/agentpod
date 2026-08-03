@@ -6,6 +6,8 @@ services:
     user: "10001:10001"
     ports:
       - "127.0.0.1:8000:8000"
+    networks:
+      - agentpod_internal
   frontend:
     build:
       context: .
@@ -16,3 +18,18 @@ services:
       - agentpod
     ports:
       - "127.0.0.1:3000:3000"
+    networks:
+      - agentpod_internal
+  ollama:
+    image: ollama/ollama@sha256:ede6aa60166d4a630b09c158c99a3cdba9a4202a82690394af106c2b121fa721
+    command: ["serve"]
+    environment:
+      OLLAMA_MODELS: /root/.ollama/models
+    volumes:
+      - "../Runtime Data/models/ollama:/root/.ollama:ro"
+    networks:
+      - agentpod_internal
+
+networks:
+  agentpod_internal:
+    internal: true
