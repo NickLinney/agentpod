@@ -2,6 +2,9 @@ import unittest
 
 from src.config import (
     DEFAULT_LOCAL_MODEL,
+    DEFAULT_OLLAMA_MODEL,
+    OLLAMA_CHAT_TIMEOUT_SECONDS,
+    OLLAMA_READINESS_TIMEOUT_SECONDS,
     AgentPodConfig,
     ConfigurationError,
     load_config,
@@ -28,7 +31,7 @@ class ConfigurationContractTests(unittest.TestCase):
     def test_valid_overrides_preserve_strings_and_parse_ports_and_booleans(self) -> None:
         config = load_config(
             {
-                "LOCAL_MODEL": "literal/model-name",
+                "LOCAL_MODEL": DEFAULT_LOCAL_MODEL,
                 "OLLAMA_HOST": "ollama.internal",
                 "OLLAMA_PORT": "11434",
                 "AGENT_NAME": "reference-agent",
@@ -45,7 +48,7 @@ class ConfigurationContractTests(unittest.TestCase):
         self.assertEqual(
             config,
             AgentPodConfig(
-                local_model="literal/model-name",
+                local_model=DEFAULT_LOCAL_MODEL,
                 ollama_host="ollama.internal",
                 ollama_port=11434,
                 agent_name="reference-agent",
@@ -78,6 +81,24 @@ class ConfigurationContractTests(unittest.TestCase):
         self.assertNotIn("private-host", safe.values())
         self.assertNotIn("private-name", safe.values())
         self.assertNotIn("private-id", safe.values())
+
+    def test_live_inference_contract_uses_approved_mapping_and_timeouts(self) -> None:
+        self.assertEqual(DEFAULT_LOCAL_MODEL, "meta-llama/Llama-3.2-1B")
+        self.assertEqual(DEFAULT_OLLAMA_MODEL, "llama3.2:1b-text-q4_K_M")
+        self.assertEqual(OLLAMA_READINESS_TIMEOUT_SECONDS, 1.0)
+        self.assertEqual(OLLAMA_CHAT_TIMEOUT_SECONDS, 120.0)
+
+    def test_model_allowlist_rejects_alias_alternate_and_mismatch_without_echo(self) -> None:
+        rejected = (
+            {"LOCAL_MODEL": "meta-llama/Llama-3.2-3B"},
+            {"LOCAL_MODEL": "llama3.2:1b"},
+        )
+        for environ in rejected:
+            with self.subTest(environ=environ):
+                with self.assertRaises(ConfigurationError) as context:
+                    load_config(environ)
+                self.assertNotIn("llama3.2:1b", str(context.exception))
+                self.assertNotIn("Llama-3.2-3B", str(context.exception))
 
     def test_blank_and_edge_whitespace_strings_are_rejected(self) -> None:
         names = (

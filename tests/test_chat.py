@@ -36,7 +36,7 @@ class ChatApiContractTests(unittest.TestCase):
         build.assert_called_once_with(
             "ollama.internal",
             11434,
-            "meta-llama/Llama-3.2-1B",
+            "llama3.2:1b-text-q4_K_M",
         )
         adapter.chat.assert_called_once_with(" original conversation ")
 

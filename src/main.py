@@ -13,7 +13,13 @@ from src.application_logging import (
     log_application_startup,
     log_current_http_error,
 )
-from src.config import ConfigurationError, load_config
+from src.config import (
+    DEFAULT_OLLAMA_MODEL,
+    OLLAMA_CHAT_TIMEOUT_SECONDS,
+    OLLAMA_READINESS_TIMEOUT_SECONDS,
+    ConfigurationError,
+    load_config,
+)
 from src.inference import (
     ChatResult,
     InferenceAdapter,
@@ -107,7 +113,7 @@ def status() -> dict[str, object]:
             adapter = _build_ollama_adapter(
                 config.ollama_host,
                 config.ollama_port,
-                config.local_model,
+                DEFAULT_OLLAMA_MODEL,
             )
             readiness = adapter.check_readiness()
             ollama = {
@@ -153,7 +159,7 @@ def chat(request: ChatRequest) -> ChatResponse | JSONResponse:
     adapter = _build_ollama_adapter(
         config.ollama_host,
         config.ollama_port,
-        config.local_model,
+        DEFAULT_OLLAMA_MODEL,
     )
     result = adapter.chat(request.message)
     if result.detail == "success" and result.response is not None:
@@ -170,8 +176,8 @@ def _build_ollama_adapter(
         host=host,
         port=port,
         model=model,
-        readiness_timeout_seconds=1.0,
-        chat_timeout_seconds=120.0,
+        readiness_timeout_seconds=OLLAMA_READINESS_TIMEOUT_SECONDS,
+        chat_timeout_seconds=OLLAMA_CHAT_TIMEOUT_SECONDS,
         transport=UrllibJsonTransport(),
     )
 

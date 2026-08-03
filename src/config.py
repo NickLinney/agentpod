@@ -4,6 +4,9 @@ from dataclasses import dataclass
 
 
 DEFAULT_LOCAL_MODEL = "meta-llama/Llama-3.2-1B"
+DEFAULT_OLLAMA_MODEL = "llama3.2:1b-text-q4_K_M"
+OLLAMA_READINESS_TIMEOUT_SECONDS = 1.0
+OLLAMA_CHAT_TIMEOUT_SECONDS = 120.0
 
 
 class ConfigurationError(ValueError):
@@ -44,8 +47,12 @@ def load_config(environ: Mapping[str, str] | None = None) -> AgentPodConfig:
     source = os.environ if environ is None else environ
     local_model = _parse_string(source, "LOCAL_MODEL")
 
+    resolved_local_model = DEFAULT_LOCAL_MODEL if local_model is None else local_model
+    if resolved_local_model != DEFAULT_LOCAL_MODEL:
+        raise ConfigurationError("LOCAL_MODEL is not an approved model")
+
     return AgentPodConfig(
-        local_model=DEFAULT_LOCAL_MODEL if local_model is None else local_model,
+        local_model=resolved_local_model,
         ollama_host=_parse_string(source, "OLLAMA_HOST"),
         ollama_port=_parse_port(source, "OLLAMA_PORT"),
         agent_name=_parse_string(source, "AGENT_NAME"),

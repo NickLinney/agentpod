@@ -69,7 +69,7 @@ class HealthAndStatusTests(unittest.TestCase):
                 build.assert_called_once_with(
                     "not-exposed.internal",
                     11434,
-                    "meta-llama/Llama-3.2-1B",
+                    "llama3.2:1b-text-q4_K_M",
                 )
 
     def test_status_reports_invalid_configuration_without_rejected_value(self) -> None:
